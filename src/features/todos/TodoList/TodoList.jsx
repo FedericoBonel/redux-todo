@@ -1,17 +1,9 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-    faTrash,
-    faUpload,
-    faSpinner,
-} from "@fortawesome/free-solid-svg-icons";
+import { faUpload, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 
-import {
-    useGetTodosQuery,
-    useAddTodoMutation,
-    useDeleteTodoMutation,
-    useUpdateTodoMutation,
-} from "../../api/apiSlice";
+import { useGetTodosQuery, useAddTodoMutation } from "../../api/apiSlice";
+import TodoExcerpt from "../TodoExcerpt/TodoExcerpt";
 
 const TodoList = () => {
     const [newTitle, setNewTitle] = useState("");
@@ -23,16 +15,13 @@ const TodoList = () => {
         isError,
         error,
     } = useGetTodosQuery();
+    
     const [addTodo] = useAddTodoMutation();
-    const [deleteTodo] = useDeleteTodoMutation();
-    const [updateTodo] = useUpdateTodoMutation();
 
     const onAddTodo = (e) => {
         e.preventDefault();
 
-        // ! We are only allowing 1 user, if this were to change
-        // ! This must be updated
-        addTodo({ userId: 1, title: newTitle, completed: false });
+        addTodo({ description: newTitle, completed: false });
 
         setNewTitle("");
     };
@@ -46,24 +35,7 @@ const TodoList = () => {
             </div>
         );
     } else if (isSuccess) {
-        content = todos.map((todo) => (
-            <article key={todo.id}>
-                <div className="todo">
-                    <input
-                        type="checkbox"
-                        checked={todo.completed}
-                        id={todo.id}
-                        onChange={() =>
-                            updateTodo({ ...todo, completed: !todo.completed })
-                        }
-                    />
-                    <label htmlFor={todo.id}>{todo.title}</label>
-                </div>
-                <button className="trash" onClick={() => deleteTodo(todo)}>
-                    <FontAwesomeIcon icon={faTrash} />
-                </button>
-            </article>
-        ));
+        content = todos.map((todo) => <TodoExcerpt todo={todo} key={todo._id}/>);
     } else if (isError) {
         content = <p>{error}</p>;
     } else {
